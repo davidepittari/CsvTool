@@ -8,34 +8,45 @@ def check_nuget_sheet(excel_file):
         raise ValueError(f"The sheet 'NuGet' is not present in {excel_file}.")
 
 
-def process_data(csv_file, excel_file, column_vars, start_row=1, start_col=1):
+def process_data(csv_file, excel_file, column_vars, column_dest_vars):
     """Processes the CSV file and appends the selected columns to the NuGet sheet in an Excel file."""
     df = pd.read_csv(csv_file)
-
-    # Get selected columns
-    selected_columns = [col for col, var in column_vars.items() if var.get()]
-    if not selected_columns:
-        raise ValueError("No columns selected.")
 
     # Load the Excel file
     book = load_workbook(excel_file)
     
-    # Check if the "NuGet" sheet exists
     if "NuGet" not in book.sheetnames:
         raise ValueError(f"The sheet 'NuGet' is not present in {excel_file}.")
     
-    # Select the NuGet sheet
     sheet = book["NuGet"]
 
-    # Append the selected columns to the NuGet sheet
-    for idx, column in enumerate(selected_columns):
-        # Insert column data into the specified location
-        col_data = df[column].tolist()
-        for i, value in enumerate(col_data):
-            sheet.cell(row=start_row + i, column=start_col + idx, value=value)
+    for column, var in column_vars.items():
+        if var.get():
+            dest_column = column_dest_vars[column].get().strip().upper()
+            if not dest_column:
+                raise ValueError(f"Destination column not specified for '{column}'.")
+            
+            # Convert column letter to index (A=1, B=2, etc.)
+            if len(dest_column) != 1 or not ('A' <= dest_column <= 'Z'):
+                raise ValueError(f"Invalid column letter '{dest_column}' specified for '{column}'.")
+
+            dest_col_idx = ord(dest_column) - ord('A') + 1
+            
+            # Ensure destination column index is at least 1
+            if dest_col_idx < 1:
+                raise ValueError(f"Destination column index {dest_col_idx} is invalid for column '{column}'.")
+
+            col_data = df[column].tolist()
+            for i, value in enumerate(col_data):
+                # Ensure row index is at least 10
+                if (10 + i) < 1:
+                    raise ValueError(f"Invalid row index {10 + i} for column '{column}'.")
+                sheet.cell(row=10 + i, column=dest_col_idx, value=value)
 
     # Save the updated Excel file
     book.save(excel_file)
+
+
 
 
 
