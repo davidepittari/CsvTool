@@ -91,28 +91,46 @@ def create_interface():
     root = tk.Tk()
     root.title("CSV to Excel Application")
 
-    # Variables to store file paths
-    global file_input_var, file_output_var, column_vars
+    # Create a frame for the scrollable content
+    main_frame = tk.Frame(root)
+    main_frame.pack(fill='both', expand=True)
+
+    # Create a canvas widget
+    canvas = tk.Canvas(main_frame)
+    canvas.pack(side='left', fill='both', expand=True)
+
+    # Create a vertical scrollbar linked to the canvas
+    scrollbar = tk.Scrollbar(main_frame, orient='vertical', command=canvas.yview)
+    scrollbar.pack(side='right', fill='y')
+
+    # Create a frame to hold all content
+    content_frame = tk.Frame(canvas)
+    canvas.create_window((0, 0), window=content_frame, anchor='nw')
+    content_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
+
+    # Create GUI elements
+    global file_input_var, file_output_var, column_vars, column_frame
     file_input_var = tk.StringVar()
     file_output_var = tk.StringVar()
     column_vars = {}
 
-    # Create GUI elements
-    tk.Label(root, text="Input CSV File:").pack(pady=5)
-    tk.Entry(root, textvariable=file_input_var, width=50).pack(pady=5)
-    tk.Button(root, text="Select CSV File", command=choose_input_file).pack(pady=5)
+    tk.Label(content_frame, text="Input CSV File:").pack(pady=5)
+    tk.Entry(content_frame, textvariable=file_input_var, width=50).pack(pady=5)
+    tk.Button(content_frame, text="Select CSV File", command=choose_input_file).pack(pady=5)
 
-    tk.Label(root, text="Output Excel File:").pack(pady=5)
-    tk.Entry(root, textvariable=file_output_var, width=50).pack(pady=5)
-    tk.Button(root, text="Select Excel File", command=choose_output_file).pack(pady=5)
+    tk.Label(content_frame, text="Output Excel File:").pack(pady=5)
+    tk.Entry(content_frame, textvariable=file_output_var, width=50).pack(pady=5)
+    tk.Button(content_frame, text="Select Excel File", command=choose_output_file).pack(pady=5)
 
-    tk.Label(root, text="Select Columns to Copy:").pack(pady=5)
+    tk.Label(content_frame, text="Select Columns to Copy:").pack(pady=5)
     
-    global column_frame
-    column_frame = tk.Frame(root)
-    column_frame.pack(pady=5)
+    column_frame = tk.Frame(content_frame)
+    column_frame.pack(pady=5, fill='x')
 
-    tk.Button(root, text="Start Procedure", command=start_procedure).pack(pady=20)
+    tk.Button(content_frame, text="Start Procedure", command=start_procedure).pack(pady=20)
+
+    # Update scrollbar
+    canvas.config(yscrollcommand=scrollbar.set)
 
     # Run the GUI
     root.mainloop()
