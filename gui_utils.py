@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import pandas as pd
 from file_utils import select_input_file, select_output_file
-from data_processing import process_data
+from data_processing import check_nuget_sheet, process_data
 
 def choose_input_file(file_input_var, column_frame, column_vars):
     """Updates the input field with the path of the selected file."""
@@ -48,10 +48,15 @@ def start_procedure(file_input_var, file_output_var, column_vars):
         return
 
     try:
-        process_data(csv_file, excel_file, column_vars)
-        messagebox.showinfo("Success", f"Selected columns have been copied to {excel_file}")
+        # Check if the NuGet sheet is present
+        check_nuget_sheet(excel_file)
+        
+        # Start the data processing and insert into the NuGet sheet starting at row 1, column 1
+        process_data(csv_file, excel_file, column_vars, start_row=10, start_col=1)
+        messagebox.showinfo("Success", f"Selected columns have been copied to the NuGet sheet in {excel_file}")
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {e}")
+
 
 def create_interface(root):
     """Creates the graphical user interface."""
