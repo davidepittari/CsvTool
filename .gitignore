@@ -1,5 +1,4 @@
-/components.csv
 /env
-/input.csv
-/output.xlsx
+*.csv
+*.xlsx
 /__pycache__
