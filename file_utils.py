@@ -16,3 +16,10 @@ def select_output_file():
         title="Select Output Excel File"
     )
     return file_path
+
+def select_attachment_file():
+    """Opens a dialog to select an attachment file."""
+    file_path = filedialog.askopenfilename(
+        title="Select Attachment File"
+    )
+    return file_path
