@@ -18,6 +18,27 @@ def choose_output_file(file_output_var):
     if file_path:
         file_output_var.set(file_path)
 
+def open_options_window(start_row_var, sheet_name_var):
+    """Opens a new window to set options like start row and sheet name."""
+    options_window = tk.Toplevel()
+    options_window.title("Opzioni")
+    
+    # Create a frame to hold all the content
+    content_frame = tk.Frame(options_window, padx=20, pady=20)
+    content_frame.pack(fill='both', expand=True)
+
+    tk.Label(content_frame, text="Riga di partenza:").grid(row=0, column=0, pady=5, sticky='e')
+    tk.Entry(content_frame, textvariable=start_row_var).grid(row=0, column=1, pady=5)
+
+    tk.Label(content_frame, text="Nome della scheda:").grid(row=1, column=0, pady=5, sticky='e')
+    tk.Entry(content_frame, textvariable=sheet_name_var).grid(row=1, column=1, pady=5)
+
+    tk.Button(content_frame, text="Salva", command=options_window.destroy).grid(row=2, column=0, columnspan=2, pady=10)
+
+    # Configure column weights for proper centering
+    content_frame.grid_columnconfigure(0, weight=1)
+    content_frame.grid_columnconfigure(1, weight=1)
+
 def update_column_checkboxes(file_path, column_frame, column_vars, column_dest_vars):
     """Updates the list of column checkboxes and destination column entries based on the CSV file."""
     for widget in column_frame.winfo_children():
@@ -45,7 +66,7 @@ def update_column_checkboxes(file_path, column_frame, column_vars, column_dest_v
     except Exception as e:
         messagebox.showerror("Errore", f"Errore durante la lettura del file CSV: {e}")
 
-def start_procedure(file_input_var, file_output_var, column_vars, column_dest_vars):
+def start_procedure(file_input_var, file_output_var, column_vars, column_dest_vars, start_row_var, sheet_name_var):
     """Function called by the button to start the data processing."""
     csv_file = file_input_var.get()
     excel_file = file_output_var.get()
@@ -59,13 +80,18 @@ def start_procedure(file_input_var, file_output_var, column_vars, column_dest_va
         return
 
     try:
-        process_data(csv_file, excel_file, column_vars, column_dest_vars)
+        process_data(csv_file, excel_file, column_vars, column_dest_vars, start_row_var.get(), sheet_name_var.get())
         messagebox.showinfo("Successo", f"Le colonne selezionate sono state copiate nel file {excel_file}")
     except Exception as e:
         messagebox.showerror("Errore", f"Si è verificato un errore: {e}")
 
+
 def create_interface(root):
     """Creates the graphical user interface."""
+
+    # Variabili per la configurazione delle opzioni
+    start_row_var = tk.IntVar(value=10)  # Default start row
+    sheet_name_var = tk.StringVar(value="NuGet")  # Default sheet name
 
     # Menu Bar
     menubar = Menu(root)
@@ -76,15 +102,21 @@ def create_interface(root):
     menubar.add_cascade(label="File", menu=file_menu)
     file_menu.add_command(label="Esci", command=root.quit)
     
+    # Create an Options Menu
+    options_menu = Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Opzioni", menu=options_menu)
+    options_menu.add_command(label="Imposta Opzioni", command=lambda: open_options_window(start_row_var, sheet_name_var))
+    
     # Create a Help Menu
     help_menu = Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Aiuto", menu=help_menu)
     help_menu.add_command(label="Informazioni", command=lambda: messagebox.showinfo("Informazioni", "CSV to Excel Application v1.0"))
 
-    # Create main content frame centered
+    # Create content frame
     content_frame = tk.Frame(root)
-    content_frame.pack(pady=20, padx=20)
+    content_frame.pack(padx=20, pady=20, fill='both', expand=True)
 
+    # GUI elements
     file_input_var = tk.StringVar()
     file_output_var = tk.StringVar()
     column_vars = {}
@@ -103,11 +135,10 @@ def create_interface(root):
     column_frame = tk.Frame(content_frame)
     column_frame.grid(row=3, column=0, columnspan=3, pady=5, sticky='nsew')
 
-    tk.Button(content_frame, text="Avvia procedura", command=lambda: start_procedure(file_input_var, file_output_var, column_vars, column_dest_vars)).grid(row=4, column=0, columnspan=3, pady=20)
+    tk.Button(content_frame, text="Avvia procedura", command=lambda: start_procedure(file_input_var, file_output_var, column_vars, column_dest_vars, start_row_var, sheet_name_var)).grid(row=4, column=0, columnspan=3, pady=20)
 
     # Configure column and row weights for proper resizing
     content_frame.grid_columnconfigure(0, weight=1)
     content_frame.grid_columnconfigure(1, weight=1)
     content_frame.grid_columnconfigure(2, weight=1)
     content_frame.grid_rowconfigure(3, weight=1)
-
