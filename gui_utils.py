@@ -61,11 +61,31 @@ def update_column_checkboxes(file_path, column_frame, column_vars, column_dest_v
         
         column_vars.clear()
         column_dest_vars.clear()
+        
+        # Creazione di un Canvas e un Frame all'interno per gestire lo scrolling
+        canvas = tk.Canvas(column_frame)
+        scrollbar = tk.Scrollbar(column_frame, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Posizionamento del Canvas e della Scrollbar
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
         for column in columns:
             var = tk.BooleanVar()
             column_vars[column] = var
             
-            frame = tk.Frame(column_frame)
+            frame = tk.Frame(scrollable_frame)
             frame.pack(fill='x', pady=2)
             
             tk.Checkbutton(frame, text=column, variable=var).pack(side='left')
