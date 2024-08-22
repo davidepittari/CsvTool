@@ -20,5 +20,5 @@ def select_input_file():
 def select_output_file():
     return select_file(dialog_type="save", file_type=("Excel Files", "*.xlsx"), title="Select Output Excel File")
 
-def select_attachment_file():
-    return select_file(dialog_type="open", title="Select Attachment File")
+def select_final_file():
+    return select_file(dialog_type="open", file_type=("Excel Files", "*.xlsx"), title="Select Final Excel File")
