@@ -1,4 +1,9 @@
-/components.csv
-/env
-/input.csv
-/output.xlsx
+__pycache__/
+
+
+# Environments
+.env
+.venv
+env/
+venv/
+
